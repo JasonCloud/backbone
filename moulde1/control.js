@@ -25,14 +25,17 @@
     man.set({name:'aa'});
      // man.save({
      // 	success:function(model,responest){
+     //        alert(3)
+     //         console.log('responest')
+     // 	}
+     // },{error:function(){
+     //        alert(1)
+     //    }})
+     // man.fetch({
+     //     success:function(model,responest){
      //         console.log('responest')
      // 	}
      // })
-     man.fetch({
-         success:function(model,responest){
-             console.log('responest')
-     	}
-     })
      var Team = Backbone.Collection.extend({
      	model:Man
      })
@@ -40,22 +43,98 @@
      var person2 = new Man({name:'lucky'});
      var person3 = new Man({name:'jack'});
      var team = new Team([person1,person2,person3]);
-     team.remove(person3);
-     team.add(person3);
-     team.each(function(pars){
-         console.log(pars.get('name'));
-     })
+     var showAll = function(){
+        team.each(function(par){
+            //alert(par.get('name'))
+            console.log(par)
+        })
+     }
+     team.bind('reset',showAll);
      team.url = 'sever/1.php';
      team.fetch({
-     	success:function(collection,responest,options){
-            collection.each(function(pars){
-            	console.log(pars)
+        reset:true,
+        success:function(collection,responest,options){
+            console.log(options)
+            responest = eval(responest)
+            responest.forEach(function(pars){
+                console.log('save:'+pars.name)
             })
-     	},
-     	error:function(collection,responest,options){
-     		alert(collection)
-     	}
+        },
+        error:function(collection,responest,options){
+           // alert(collection)
+        }
      })
+     //路由router
+     var appRouter = Backbone.Router.extend({
+        routes:{
+            "posts/:id" : "getPost",
+             //下面对应的链接为<a href="#/download/user/images/hey.gif">download gif</a>
+            "download/*path": "downloadFile",
+            "manual": "manual",
+             "*actions":"defaultsRouter",
+             
+             ":route/:action": "loadView",
+
+        },
+        getPost: function(id) {
+       // alert(id);
+        },
+        defaultsRouter:function(def){
+            alert(def)
+        },
+        downloadFile:function(dd){
+            alert(dd);
+        },
+        loadView:function(gg){
+            alert(gg)
+        },
+        manual: function() {
+            alert("call manual");
+            new_router.navigate("/posts/" + 404, {trigger: true, replace: true});
+        }
+     })
+     var new_router = new appRouter;
+     Backbone.history.start();
+    
+    //视图view
+    var SearchView = Backbone.View.extend({
+        el:"#search_container",
+        initialize: function(){
+            //alert('init a SearchView');
+            this.render({search_label:"搜索结果"})
+           },
+         render: function(context) {
+        //使用underscore这个库，来编译模板
+        var template = _.template($("#search_template").html());
+        //加载模板到对应的el属性中
+        $(this.el).html(template(context));
+        },
+        events:{
+            "click input[type=button]":"seachButton"
+        },
+        seachButton:function(e){
+            alert("search for " + $("#search_input").val());
+        }
+    });
+    var searchView = new SearchView();
+   
+      // team.remove(person3);
+     // team.add(person3);
+     // team.each(function(pars){
+     //     console.log(pars.get('name'));
+     // })
+     // team.url = 'sever/1.php';
+     // team.fetch({
+     	// success:function(collection,responest,options){
+      //     //  console.log(collection)
+      //       collection.each(function(pars){
+      //           console.log(pars.get('age'))
+      //       })
+      //   },
+      //   error:function(collection,responest,options){
+      //       alert(collection)
+      //   }
+     // })
 // 	var User = Backbone.Model.extend({
 // 		abc:function(par){
 // 	       alert(this.name);
